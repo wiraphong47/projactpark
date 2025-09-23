@@ -3,7 +3,7 @@ session_start();
 $error_message = '';
 if (isset($_SESSION['error_message'])) {
     $error_message = $_SESSION['error_message'];
-    unset($_SESSION['error_message']);
+    unset($_SESSION['error_message']); // ล้างค่าเมื่อแสดงผลแล้ว
 }
 ?>
 <!DOCTYPE html>
@@ -32,8 +32,8 @@ if (isset($_SESSION['error_message'])) {
             <button type="submit">เข้าสู่ระบบ</button>
         </form>
         <div class="extra-links">
-            <a href="#">ลืมรหัสผ่าน?</a>
-            <a href="register.php">สมัครใช้งาน</a>
+    <a href="forgot_password.php">ลืมรหัสผ่าน?</a>
+    <a href="register.php">สมัครใช้งาน</a>
         </div>
     </div>
 </body>

@@ -9,7 +9,7 @@ body {
     margin: 0;
 }
 
-.login-container {
+.login-container, .register-container {
     background-color: #ffffff;
     padding: 40px;
     border-radius: 10px;
@@ -34,7 +34,7 @@ h2 {
 
 .form-group {
     margin-bottom: 20px;
-    display: flex;
+    display: flex; /* ใช้ flexbox ในการจัดเรียง */
     align-items: center;
     justify-content: center;
 }
@@ -42,13 +42,15 @@ h2 {
 .form-group label {
     font-size: 18px;
     color: #555;
-    width: 60px; /* กำหนดความกว้างของ label */
+    /* แก้ไขความกว้างของ label ให้กว้างพอดีกับข้อความ */
+    min-width: 100px;
     text-align: left;
     margin-right: 10px;
 }
 
 .form-group input {
-    width: calc(100% - 70px); /* คำนวณความกว้างที่เหลือ */
+    /* กำหนดให้ input ขยายเต็มพื้นที่ที่เหลือ */
+    flex-grow: 1;
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -84,6 +86,7 @@ button:hover {
     color: #777;
     text-decoration: none;
     font-size: 14px;
+    margin: 0 5px;
 }
 
 .extra-links a:hover {
@@ -92,6 +95,12 @@ button:hover {
 
 .error-message {
     color: #d9534f; /* สีแดงสำหรับข้อความผิดพลาด */
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.success-message {
+    color: #5cb85c; /* สีเขียวสำหรับข้อความสำเร็จ */
     margin-bottom: 15px;
     font-size: 14px;
 }
