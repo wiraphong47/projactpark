@@ -44,7 +44,7 @@ if (isset($_SESSION['register_error'])) {
             <button type="submit">สมัครใช้งาน</button>
         </form>
         <div class="extra-links">
-            <a href="index.php">กลับสู่หน้า Login</a>
+            <a href="login.php">กลับสู่หน้า Login</a>
         </div>
     </div>
 </body>
