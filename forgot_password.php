@@ -42,7 +42,7 @@ if (isset($_SESSION['reset_error'])) {
             <button type="submit">ส่งคำขอ</button>
         </form>
         <div class="extra-links">
-            <a href="index.php">กลับสู่หน้า Login</a>
+            <a href="login.php">กลับสู่หน้า Login</a>
         </div>
     </div>
 </body>
