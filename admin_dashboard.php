@@ -8,10 +8,36 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// ดึงข้อมูลที่จอดรถทั้งหมด
-$spots = [];
-$result = $conn->query("SELECT spot_name, status, booked_by_user FROM parking_spots ORDER BY id");
-if ($result) { while($row = $result->fetch_assoc()) { $spots[] = $row; } }
+// ดึงข้อมูลโซนทั้งหมด
+$zones = [];
+$zone_result = $conn->query("SELECT id, name FROM zones ORDER BY id");
+if ($zone_result) { while($row = $zone_result->fetch_assoc()) { $zones[] = $row; } }
+
+// ดึงข้อมูลที่จอดรถทั้งหมด (ไม่ต้องดึงทีเดียว)
+// $spots = [];
+// $result = $conn->query("SELECT spot_name, status, booked_by_user FROM parking_spots ORDER BY id");
+// if ($result) { while($row = $result->fetch_assoc()) { $spots[] = $row; } }
+
+// ดึงข้อมูลที่จอดรถตามโซน
+$spots_by_zone = [];
+if (!empty($zones)) {
+    foreach ($zones as $zone) {
+        $stmt = $conn->prepare("SELECT spot_name, status, booked_by_user FROM parking_spots WHERE zone_id = ? ORDER BY id");
+        $stmt->bind_param("i", $zone['id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $spots = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $spots[] = $row;
+            }
+        }
+        $spots_by_zone[$zone['id']] = $spots;
+        $stmt->close();
+    }
+}
+
+
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -193,20 +219,34 @@ body {
         <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
             <a href="manage_zones.php" style="padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">จัดการโซน</a>
         </div>
-        <div class="parking-grid">
-            <?php foreach ($spots as $spot): ?>
-                <div class="spot <?php echo $spot['status']; ?>">
-                    <span class="spot-name"><?php echo $spot['spot_name']; ?></span>
-                    <?php if ($spot['status'] === 'occupied'): ?>
-                        <span class="booked-by">จองโดย: <?php echo htmlspecialchars($spot['booked_by_user']); ?></span>
-                        <form action="admin_reset_spot.php" method="POST" style="margin:0;">
-                            <input type="hidden" name="spot_name" value="<?php echo $spot['spot_name']; ?>">
-                            <button type="submit" class="reset-button">รีเซ็ต</button>
-                        </form>
-                    <?php endif; ?>
+
+        <?php if (!empty($zones)): ?>
+            <?php foreach ($zones as $zone): ?>
+                <div class="zone-section" style="margin-bottom: 40px;">
+                    <h2 style="font-size: 24px; border-bottom: 1px solid #ccc; padding-bottom: 10px;"><?php echo htmlspecialchars($zone['name']); ?></h2>
+                    <div class="parking-grid">
+                        <?php if (!empty($spots_by_zone[$zone['id']])): ?>
+                            <?php foreach ($spots_by_zone[$zone['id']] as $spot): ?>
+                                <div class="spot <?php echo $spot['status']; ?>">
+                                    <span class="spot-name"><?php echo $spot['spot_name']; ?></span>
+                                    <?php if ($spot['status'] === 'occupied'): ?>
+                                        <span class="booked-by">จองโดย: <?php echo htmlspecialchars($spot['booked_by_user']); ?></span>
+                                        <form action="admin_reset_spot.php" method="POST" style="margin:0;">
+                                            <input type="hidden" name="spot_name" value="<?php echo $spot['spot_name']; ?>">
+                                            <button type="submit" class="reset-button">รีเซ็ต</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p style="text-align: center; grid-column: 1 / -1;">ไม่พบที่จอดรถในโซนนี้</p>
+                        <?php endif; ?>
+                    </div>
                 </div>
             <?php endforeach; ?>
-        </div>
+        <?php else: ?>
+            <p style="text-align: center;">ไม่พบโซนที่จอดรถ</p>
+        <?php endif; ?>
     </div>
 </body>
 </html>
