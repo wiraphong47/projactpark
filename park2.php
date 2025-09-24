@@ -21,8 +21,9 @@ foreach ($zones as $zone) {
     }
 }
 
+
 // --- ส่วนจำลองการสุ่มสถานะ (สำหรับทดสอบ) เพื่ออัปเดตทุกครั้งที่รีเฟรช ---
-$conn->query("UPDATE parking_spots SET status = IF(RAND() > 0.5, 'occupied', 'available') WHERE zone_id = '$selected_zone_id'");
+// $conn->query("UPDATE parking_spots SET status = IF(RAND() > 0.5, 'occupied', 'available') WHERE zone_id = '$selected_zone_id'");
 
 // --- รับค่าจากการค้นหา ---
 $spot_type = $_GET['spot_type'] ?? 'all';
@@ -324,7 +325,7 @@ $conn->close();
                 <h2>แผนที่แสดงตำแหน่งที่จอด</h2>
                 <p><strong>ตำแหน่งที่เลือก: ${spotId}</strong></p>
                 <p><strong>สถานที่: ${selectedZoneName}</strong></p>
-                <img src="map_central_udon.png" alt="Map of Central Udon Parking">
+                <img src="map_bigc_udon.png" alt="Map of Big C Udon Parking">
             `;
             mapContainer.classList.add('fade-in');
         }

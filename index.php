@@ -25,90 +25,178 @@ $conn->close();
     <title>ระบบจองที่จอดรถออนไลน์</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Kanit', sans-serif; background-color: #f4f4f9; display: flex;
-            justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding-top: 50px;
+        :root {
+            --primary-color: #007bff;
+            --primary-dark: #0056b3;
+            --secondary-color: #6c757d;
+            --background-light: #f8f9fa;
+            --background-dark: #e9ecef;
+            --text-color: #343a40;
+            --text-secondary: #495057;
+            --card-background: #ffffff;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.08);
         }
-        .container {
-            background-color: white; padding: 30px 40px; border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 90%; max-width: 800px;
-        }
-        h1 { color: #333; text-align: left; margin-bottom: 20px; }
 
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--background-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            background-color: var(--card-background);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px var(--shadow-color);
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        h1 {
+            color: var(--primary-dark);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        /* === สไตล์สำหรับส่วน Header (ชื่อผู้ใช้และปุ่มออกจากระบบ) === */
+        .header-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .header-controls .username {
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .logout-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background-color: #c82333;
+        }
+        
         /* === สไตล์สำหรับปุ่มเลือกโซน === */
         .zone-selector {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 25px;
-            padding-bottom: 25px;
-            border-bottom: 1px solid #eee;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            justify-content: center;
         }
+        
         .zone-button {
-            padding: 10px 20px;
+            padding: 12px 25px;
             font-family: 'Kanit', sans-serif;
             font-size: 16px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 25px;
-            background-color: #f8f9fa;
-            color: #555;
+            background-color: var(--background-light);
+            color: var(--text-secondary);
             text-decoration: none;
             cursor: pointer;
             transition: all 0.3s ease;
         }
+        
         .zone-button:hover {
-            background-color: #e2e6ea;
+            background-color: var(--background-dark);
             border-color: #ccc;
         }
+        
         .zone-button.active {
-            background-color: #007bff;
+            background-color: var(--primary-color);
             color: white;
-            border-color: #007bff;
-            font-weight: bold;
+            border-color: var(--primary-color);
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.25);
         }
         
-        /* === สไตล์สำหรับฟอร์มค้นหาใหม่ === */
+        /* === สไตล์สำหรับฟอร์มค้นหา === */
         .search-criteria {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 20px;
+            margin-bottom: 30px;
         }
+        
         .search-criteria .form-group {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
         }
+
         .search-criteria .form-group label {
-            flex-basis: 120px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--text-color);
         }
+        
         .search-criteria .form-group input,
         .search-criteria .form-group select {
-            flex-grow: 1;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
+        
+        .search-criteria .form-group input:focus,
+        .search-criteria .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+        }
+        
         #search-button {
             width: 100%;
             padding: 15px;
             border: none;
             border-radius: 30px;
-            background-color: #007bff;
+            background-color: var(--primary-color);
             color: white;
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
+        
         #search-button:hover {
-            background-color: #0056b3;
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
         }
-        .header-controls { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 15px; }
-        .header-controls .username { font-weight: bold; }
-        .logout-button {
-            background-color: #e57373; color: white; padding: 8px 15px;
-            text-decoration: none; border-radius: 20px; font-size: 14px;
+
+        /* สำหรับหน้าจอขนาดเล็ก */
+        @media (min-width: 600px) {
+            .search-criteria .form-group {
+                flex-direction: row;
+                align-items: center;
+                gap: 15px;
+            }
+            .search-criteria .form-group label {
+                flex-basis: 150px;
+                margin-bottom: 0;
+            }
         }
     </style>
 </head>
@@ -136,7 +224,7 @@ $conn->close();
             <?php endif; ?>
         </div>
         
-        <form action="park.php" method="get" id="search-form">
+        <form action="park2.php" method="get" id="search-form">
             <input type="hidden" name="zone" value="<?php echo $selected_zone_id; ?>">
             <div class="search-criteria">
                 <div class="form-group">

@@ -21,125 +21,166 @@ $conn->close();
     <title>Admin Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* === General Styles === */
-        body {
-            font-family: 'Kanit', sans-serif;
-            background-color: #f8f9fa;
-            color: #343a40;
-            margin: 0;
-            padding: 20px;
-        }
+       /* === General Styles === */
+body {
+    font-family: 'Kanit', sans-serif;
+    background-color: #e9ecef; /* Lighter, modern background */
+    color: #495057;
+    margin: 0;
+    padding: 0;
+}
 
-        /* === Main Container === */
-        .container {
-            max-width: 900px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
+/* === Main Container === */
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
 
-        /* === Header Section === */
-        .header-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
+/* === Header Section === */
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #ced4da;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
 
-        .header-section h1 {
-            font-size: 28px;
-            color: #007bff;
-            margin: 0;
-        }
+.header-section h1 {
+    font-size: 32px;
+    color: #0056b3; /* Darker blue for a professional look */
+    margin: 0;
+    font-weight: 700;
+}
 
-        .header-section a {
-            background-color: #dc3545;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
+.header-section a.logout-btn {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.2s;
+}
 
-        .header-section a:hover {
-            background-color: #c82333;
-        }
+.header-section a.logout-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
 
-        .welcome-message {
-            margin-bottom: 25px;
-            font-size: 16px;
-            color: #6c757d;
-        }
+.welcome-message {
+    margin-bottom: 30px;
+    font-size: 18px;
+    color: #6c757d;
+    font-weight: 400;
+}
 
-        /* === Parking Grid === */
-        .parking-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-            gap: 20px;
-        }
+/* === Navigation/Action Links === */
+.action-links {
+    margin-bottom: 25px;
+    display: flex;
+    gap: 15px;
+}
 
-        .spot {
-            height: 80px;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 16px;
-            color: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
+.action-links a {
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.2s;
+}
 
-        .spot:hover {
-            transform: translateY(-5px);
-        }
+.action-links a:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
 
-        .spot.available {
-            background-color: #6c757d; /* สีเทาเข้มสำหรับช่องว่าง */
-        }
+/* === Parking Grid === */
+.parking-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 25px;
+    padding: 10px;
+}
 
-        .spot.occupied {
-            background-color: #e57373; /* สีแดงสำหรับช่องที่ถูกจอง */
-        }
+.spot {
+    height: 100px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    text-align: center;
+    padding: 10px;
+}
 
-        .spot-name {
-            margin-bottom: 5px;
-        }
+.spot:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
 
-        .booked-by {
-            font-size: 11px;
-            font-weight: normal;
-            position: absolute;
-            bottom: 5px;
-            color: rgba(255, 255, 255, 0.8);
-        }
+.spot.available {
+    background-color: #4CAF50; /* Green for available */
+}
 
-        /* === Reset Button === */
-        .reset-button {
-            background-color: #ffc107;
-            color: #212529;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: bold;
-            margin-top: 8px;
-            transition: background-color 0.3s;
-        }
+.spot.occupied {
+    background-color: #EF5350; /* Red for occupied */
+}
 
-        .reset-button:hover {
-            background-color: #e0a800;
-        }
+.spot-name {
+    font-size: 18px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.booked-by {
+    font-size: 12px;
+    font-weight: normal;
+    opacity: 0.9;
+}
+
+/* === Reset Button === */
+.reset-button {
+    background-color: #FFC107;
+    color: #343a40;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.reset-button:hover {
+    background-color: #E0A800;
+    transform: translateY(-2px);
+}
+
+/* === Responsive adjustments === */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 20px;
+    }
+
+    .parking-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+}
     </style>
 </head>
 <body>

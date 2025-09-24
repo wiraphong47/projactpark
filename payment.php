@@ -2,7 +2,7 @@
 session_start();
 require_once 'config.php';
 
-// ฟังก์ชันสำหรับคำนวณค่าบริการ
+// Function to calculate service cost
 function calculate_cost($start, $end) {
     $start_datetime = new DateTime($start);
     $end_datetime = new DateTime($end);
@@ -17,7 +17,7 @@ function calculate_cost($start, $end) {
     return $total_hours * 50; 
 }
 
-// --- ส่วนที่ 1: จัดการการอัปโหลดสลิปและยืนยันการจอง ---
+// --- Section 1: Handle slip upload and booking confirmation ---
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_booking'])) {
     
     $booked_spot = $_POST['booked_spot'];
@@ -28,9 +28,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_booking'])) {
     $payment_method = $_POST['payment_method'];
     $is_booking_success = false;
 
-    // --- ตรวจสอบวิธีการชำระเงิน ---
+    // --- Check payment method ---
     if ($payment_method === 'qr_code') {
-        // โค้ดเดิมสำหรับ QR Code (อัปโหลดสลิป)
+        // Original code for QR Code (slip upload)
         $is_upload_success = false;
         if (isset($_FILES['payment_slip']) && $_FILES['payment_slip']['error'] === UPLOAD_ERR_OK) {
             $file_tmp_path = $_FILES['payment_slip']['tmp_name'];
@@ -52,9 +52,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_booking'])) {
         }
 
     } elseif ($payment_method === 'credit_card') {
-        // โค้ดจำลองสำหรับการประมวลผลบัตรเครดิต
-        // ในระบบจริงจะมีการเชื่อมต่อกับ Payment Gateway API
-        $is_payment_successful = true; // สมมติว่าสำเร็จ
+        // Simulated code for credit card processing
+        $is_payment_successful = true; // Assume success
         if ($is_payment_successful) {
             $stmt = $conn->prepare("UPDATE parking_spots SET status = 'occupied', booked_by_user = ? WHERE spot_name = ? AND status = 'available'");
             $stmt->bind_param("ss", $username, $booked_spot);
@@ -66,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_booking'])) {
     
     $conn->close();
 
-    // หากการจองสำเร็จ ให้เก็บข้อมูลลง session และเปลี่ยนเส้นทางไปหน้าใบเสร็จ
+    // If booking is successful, store data in session and redirect to receipt page
     if ($is_booking_success) {
         $_SESSION['receipt_data'] = [
             'spot' => $booked_spot,
@@ -80,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_booking'])) {
         header('Location: receipt.php');
         exit();
     }
-    // หากไม่สำเร็จ ให้แสดงหน้าผิดพลาด
+    // If not successful, display an error page
     echo '
     <!DOCTYPE html>
     <html lang="th">
@@ -109,7 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_booking'])) {
     exit(); 
 }
 
-// --- ส่วนที่ 2: แสดงหน้ายืนยันการจอง (เมื่อมาจากหน้า index หรือ park) ---
+// --- Section 2: Display booking confirmation page (when coming from index or park) ---
 if (isset($_POST['selected_spot']) && !empty($_POST['selected_spot'])) {
     $selected_spot = htmlspecialchars($_POST['selected_spot']);
     $start_time = $_POST['start_time'];
@@ -120,130 +119,202 @@ if (isset($_POST['selected_spot']) && !empty($_POST['selected_spot'])) {
     exit();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <title>ยืนยันและชำระเงิน</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: 'Kanit', sans-serif;
-            background-color: #f4f4f9;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             padding: 20px 0;
+            color: #333;
         }
         .container {
             background-color: white;
             padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             width: 90%;
-            max-width: 500px;
+            max-width: 550px;
             text-align: center;
+            border: 1px solid #e0e6ed;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         h1 {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 25px;
-        }
-        .info {
-            font-size: 20px;
-            color: #555;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-        .info strong {
-            color: #007bff;
-            font-size: 22px;
-        }
-        .payment-section {
-            margin-top: 30px;
-            border-top: 1px solid #eee;
-            padding-top: 30px;
-        }
-        .payment-section h2 {
-            font-size: 22px;
-            margin-bottom: 20px;
-        }
-        .qr-code {
-            max-width: 200px;
-            margin-bottom: 20px;
-        }
-        .slip-upload-label {
-            display: block;
-            font-weight: bold;
+            font-size: 32px;
+            color: #2c3e50;
             margin-bottom: 10px;
-            color: #333;
+            font-weight: 700;
         }
-        #payment_slip {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        p.subtitle {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        .info-card {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
             margin-bottom: 25px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+            text-align: left;
         }
-        #confirm-button {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            background-color: #28a745;
-            color: white;
-            font-family: 'Kanit', sans-serif;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+        .info-card h2 {
+            font-size: 24px;
+            color: #34495e;
+            margin-bottom: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
         }
-        #confirm-button:hover {
-            background-color: #218838;
+        .info-card h2 .icon {
+            font-size: 28px;
+            color: #3498db;
+            margin-right: 10px;
+        }
+        .info-card p {
+            font-size: 18px;
+            color: #555;
+            line-height: 1.8;
+            margin: 0;
+        }
+        .info-card strong {
+            color: #2980b9;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .info-card .cost {
+            font-size: 30px;
+            font-weight: 700;
+            color: #e74c3c;
+            margin-top: 15px;
+            text-align: right;
         }
         .payment-method-selector {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 30px;
+            margin-bottom: 30px;
         }
-        .payment-method-selector button {
-            padding: 12px 25px;
-            border-radius: 25px;
-            border: 1px solid #007bff;
+        .method-btn {
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: 2px solid #bdc3c7;
             background-color: white;
-            color: #007bff;
+            color: #7f8c8d;
             font-family: 'Kanit', sans-serif;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        .payment-method-selector button.active,
-        .payment-method-selector button:hover {
-            background-color: #007bff;
+        .method-btn.active,
+        .method-btn:hover {
+            background-color: #3498db;
             color: white;
+            border-color: #3498db;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        .payment-section {
+            border-top: 1px solid #e0e6ed;
+            padding-top: 30px;
+            text-align: center;
+        }
+        .payment-section h2 {
+            font-size: 24px;
+            color: #34495e;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        .qr-code {
+            max-width: 250px;
+            width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .slip-upload-label {
+            display: block;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #34495e;
+        }
+        #payment_slip {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            background-color: #f9f9f9;
+        }
+        .confirm-button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            font-family: 'Kanit', sans-serif;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+        }
+        .confirm-button:hover {
+            background: linear-gradient(90deg, #27ae60 0%, #2ecc71 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5);
         }
         .payment-form-section {
             display: none;
+            animation: fadeIn 0.6s ease-in-out;
         }
         .payment-form-section.active {
             display: block;
         }
         .credit-card-form .form-group {
             text-align: left;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
         .credit-card-form .form-group label {
             display: block;
-            margin-bottom: 5px;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
         }
         .credit-card-form .form-group input {
             width: 95%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
+            background-color: #fcfcfc;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            transition: border-color 0.3s;
+        }
+        .credit-card-form .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
         }
         .credit-card-form .form-row {
             display: flex;
@@ -257,31 +328,26 @@ if (isset($_POST['selected_spot']) && !empty($_POST['selected_spot'])) {
 <body>
     <div class="container">
         <h1>ยืนยันและชำระเงิน</h1>
-        <div class="info">
-            คุณกำลังจะจองที่จอด:<br>
-            <strong><?php echo $selected_spot; ?></strong>
-            <p style="font-size: 18px; margin-top: 20px;">
-                วันที่เข้า: <?php echo date('d/m/Y', strtotime($start_time)); ?>
-                <br>
-                เวลาเข้า: <?php echo date('H:i', strtotime($start_time)); ?> น.
-                <br>
-                วันที่ออก: <?php echo date('d/m/Y', strtotime($end_time)); ?>
-                <br>
-                เวลาออก: <?php echo date('H:i', strtotime($end_time)); ?> น.
-            </p>
-            <p style="font-size: 24px;">ค่าบริการ: <strong><?php echo number_format($total_cost, 2); ?> บาท</strong></p>
+        <p class="subtitle">กรุณาตรวจสอบรายละเอียดการจองและเลือกช่องทางการชำระเงิน</p>
+
+        <div class="info-card">
+            <h2><i class="fas fa-info-circle icon"></i> รายละเอียดการจอง</h2>
+            <p>ที่จอด: <strong><?php echo $selected_spot; ?></strong></p>
+            <p>เวลาเข้า: <?php echo date('d/m/Y H:i', strtotime($start_time)); ?> น.</p>
+            <p>เวลาออก: <?php echo date('d/m/Y H:i', strtotime($end_time)); ?> น.</p>
+            <p class="cost">ค่าบริการ: <strong><?php echo number_format($total_cost, 2); ?> บาท</strong></p>
         </div>
 
         <div class="payment-method-selector">
-            <button type="button" class="method-btn active" data-method="qr_code">QR Code</button>
-            <button type="button" class="method-btn" data-method="credit_card">บัตรเครดิต</button>
+            <button type="button" class="method-btn active" data-method="qr_code"><i class="fas fa-qrcode"></i> QR Code</button>
+            <button type="button" class="method-btn" data-method="credit_card"><i class="fas fa-credit-card"></i> บัตรเครดิต</button>
         </div>
 
         <div class="payment-section">
-            
             <form action="payment.php" method="POST" enctype="multipart/form-data" id="qr_code-form" class="payment-form-section active">
                 <h2>ชำระเงินผ่าน QR Code</h2>
                 <img src="qr_code.png" alt="QR Code สำหรับชำระเงิน" class="qr-code">
+                
                 <input type="hidden" name="payment_method" value="qr_code">
                 <input type="hidden" name="booked_spot" value="<?php echo $selected_spot; ?>">
                 <input type="hidden" name="start_time" value="<?php echo htmlspecialchars($start_time); ?>">
@@ -290,7 +356,7 @@ if (isset($_POST['selected_spot']) && !empty($_POST['selected_spot'])) {
                 <label for="payment_slip" class="slip-upload-label">แนบสลิปการโอนเงิน</label>
                 <input type="file" id="payment_slip" name="payment_slip" accept="image/*" required>
                 
-                <button type="submit" name="confirm_booking" id="confirm-button">ยืนยันการจองและแจ้งชำระเงิน</button>
+                <button type="submit" name="confirm_booking" class="confirm-button">ยืนยันการจองและแจ้งชำระเงิน</button>
             </form>
             
             <form action="payment.php" method="POST" id="credit_card-form" class="payment-form-section">
@@ -321,11 +387,11 @@ if (isset($_POST['selected_spot']) && !empty($_POST['selected_spot'])) {
                     </div>
                 </div>
                 
-                <button type="submit" name="confirm_booking" id="confirm-button">ยืนยันการชำระเงิน</button>
+                <button type="submit" name="confirm_booking" class="confirm-button">ยืนยันการชำระเงิน</button>
             </form>
-
         </div>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const methodButtons = document.querySelectorAll('.method-btn');

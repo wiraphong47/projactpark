@@ -1,236 +1,415 @@
 /* ==========================================================================
    General & Shared Styles (สไตล์ทั่วไปและใช้ร่วมกัน)
    ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
 
-/* ใช้ Google Fonts 'Kanit' เพื่อให้แสดงผลภาษาไทยสวยงาม */
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap');
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --background-light: #f4f4f9;
+    --card-background: #ffffff;
+    --border-color: #e9ecef;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --occupied-color: #dc3545;
+    --available-color: #28a745;
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
 
 body {
     font-family: 'Kanit', sans-serif;
-    background-color: #f4f4f9;
+    background-color: var(--background-light);
+    color: #343a40;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    margin: 0;
-    padding: 20px 0; /* เพิ่ม padding เล็กน้อยเผื่อเนื้อหายาว */
 }
-
 
 /* ==========================================================================
-   Login & Register Page Styles (สไตล์หน้าล็อกอินและสมัครสมาชิก)
+   Card & Container Styles (สไตล์สำหรับกล่องข้อมูล)
    ========================================================================== */
-
-.login-container, .register-container {
-    background-color: #ffffff;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
+.container, .login-container {
+    background-color: var(--card-background);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    width: 90%;
+    max-width: 550px;
     text-align: center;
+    position: relative;
+    box-sizing: border-box;
 }
 
-/* ทำให้สไตล์หัวข้อไม่ชนกันระหว่างหน้า */
-.login-container h1, .register-container h1 {
-    color: #007bff;
-    font-size: 24px;
-    margin-bottom: 10px;
+/* ==========================================================================
+   Header & Title Styles (สไตล์หัวข้อ)
+   ========================================================================== */
+h1 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
 }
 
-.login-container h2, .register-container h2 {
-    color: #333;
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 30px;
+h2 {
+    font-size: 1.5rem;
+    color: #495057;
+    margin-bottom: 2rem;
+    font-weight: 500;
 }
 
+/* ==========================================================================
+   Form Styles (สไตล์ฟอร์ม)
+   ========================================================================== */
 .form-group {
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-bottom: 1.5rem;
+    text-align: left;
 }
 
 .form-group label {
-    font-size: 18px;
-    color: #555;
-    width: 60px;
-    text-align: left;
-    margin-right: 10px;
+    display: block;
+    font-size: 1rem;
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
 }
 
-.form-group input {
-    width: calc(100% - 70px);
+.form-group input, .form-group select {
+    width: 100%;
     padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    background-color: #f0f0f0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
 }
 
-/* ปุ่มสำหรับหน้าฟอร์ม (ล็อกอิน/สมัครสมาชิก) */
-.login-container button, .register-container button {
-    width: 200px;
-    height: 57px;
+.form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* ==========================================================================
+   Button Styles (สไตล์ปุ่ม)
+   ========================================================================== */
+button, .btn {
+    width: 100%;
     padding: 15px;
     border: none;
     border-radius: 30px;
-    background-color: #e0e0e0;
-    color: #333;
+    background-color: var(--primary-color);
+    color: white;
     font-family: 'Kanit', sans-serif;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 1.125rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.login-container button:hover, .register-container button:hover {
-    background-color: #c7c7c7;
+button:hover, .btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
 }
 
+.btn-secondary {
+    background-color: var(--secondary-color);
+}
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* ==========================================================================
+   Link & Message Styles (สไตล์ลิงก์และข้อความ)
+   ========================================================================== */
 .extra-links {
-    margin-top: 20px;
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
 }
 
 .extra-links a {
-    color: #777;
+    color: var(--primary-color);
     text-decoration: none;
-    font-size: 14px;
-    margin: 0 5px;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
 }
 
 .extra-links a:hover {
+    color: #0056b3;
     text-decoration: underline;
 }
 
 .error-message {
-    color: #d9534f;
-    margin-bottom: 15px;
-    font-size: 14px;
+    color: var(--error-color);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
 }
 
 .success-message {
-    color: #5cb85c;
-    margin-bottom: 15px;
-    font-size: 14px;
+    color: var(--success-color);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
 }
 
+/* ==========================================================================
+   Header Control (สำหรับล็อกอินแล้ว)
+   ========================================================================== */
+.header-controls {
+    position: fixed;
+    top: 1.5rem;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 100;
+}
+.header-controls .username {
+    font-weight: 600;
+    color: #495057;
+}
+.logout-button {
+    background-color: var(--error-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+.logout-button:hover {
+    background-color: #c82333;
+}
 
 /* ==========================================================================
-   Parking Reservation Page Styles (สไตล์หน้าจองที่จอดรถ)
+   Parking Page Specific Styles (สไตล์เฉพาะหน้าจอดรถ)
    ========================================================================== */
+.zone-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
 
-.container {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+.zone-button {
+    padding: 0.75rem 1.25rem;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 25px;
+    background-color: #f8f9fa;
+    color: #555;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+.zone-button:hover {
+    background-color: #e9ecef;
+}
+.zone-button.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.search-criteria {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.search-criteria .form-group {
+    display: flex;
+    flex-direction: column;
+}
+.search-criteria .form-group label {
+    text-align: left;
+}
+
+#search-button {
+    background-color: var(--primary-color);
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.summary {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+.summary-item {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 500;
+}
+.color-box {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border-radius: 4px;
+}
+.available-box { background-color: var(--available-color); }
+.occupied-box { background-color: var(--occupied-color); }
+
+.parking-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.75rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+}
+
+.spot {
+    background-color: #f8f9fa;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem 0.5rem;
+    font-weight: 600;
+    font-size: 1.125rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
     text-align: center;
+}
+.spot.available {
+    background-color: #e6f5e6;
+    border-color: var(--success-color);
+    color: var(--success-color);
+}
+.spot.available:hover {
+    transform: scale(1.05);
+}
+.spot.occupied {
+    background-color: #f8d7da;
+    border-color: var(--occupied-color);
+    color: var(--occupied-color);
+    cursor: not-allowed;
+    position: relative;
+    overflow: hidden;
+}
+.spot.selected {
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.7);
+    transform: scale(1.05);
+}
+
+.receipt-container {
+    background-color: var(--card-background);
+    padding: 2.5rem 3rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
     width: 90%;
     max-width: 600px;
 }
 
-.container h1, .container h2 {
-    color: #333;
+.header-receipt {
+    text-align: center;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
 }
-
-.location-selector {
+.header-receipt h1 {
+    font-size: 2rem;
+    margin: 0;
+}
+.info-section {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
     margin-bottom: 2rem;
 }
-
-/* ปุ่มเลือกโซน */
-.pin {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
+.info-item {
     font-size: 1rem;
-    cursor: pointer;
-    margin: 0 10px;
+    color: #495057;
+    text-align: left;
+}
+.info-item span {
+    font-weight: 600;
+    display: block;
+    margin-top: 0.25rem;
+}
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+.details-table th, .details-table td {
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    text-align: left;
+}
+.details-table th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+}
+.total-section {
+    text-align: right;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    border-top: 2px solid #000;
+    padding-top: 1.5rem;
+}
+.thank-you {
+    text-align: center;
+    margin-top: 2rem;
+    font-style: italic;
+    color: var(--secondary-color);
+}
+.back-button-container {
+    text-align: center;
+    margin-top: 2.5rem;
+}
+.back-button {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-size: 1rem;
     transition: background-color 0.3s;
 }
-
-.pin:hover {
+.back-button:hover {
     background-color: #0056b3;
 }
 
-.parking-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    gap: 15px;
-    margin: 2rem 0;
-}
-
-.spot {
-    height: 60px;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    color: white;
-    transition: transform 0.2s, background-color 0.3s;
-}
-
-.spot.available {
-    background-color: #808080; /* สีเทา = ว่าง */
-    cursor: pointer;
-}
-
-.spot.available:hover {
-    transform: scale(1.05);
-    border-color: #007bff;
-}
-
-.spot.occupied {
-    background-color: #dc3545; /* สีแดง = ไม่ว่าง */
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.spot.selected {
-    background-color: #28a745; /* สีเขียว = ที่เราเลือก */
-    border-color: #1a682c;
-    transform: scale(1.1);
-}
-
-/* ปุ่มจอง */
-#book-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 5px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    margin-top: 1rem;
-    transition: background-color 0.3s;
-}
-
-#book-button:hover {
-    background-color: #218838;
-}
-
-.legend {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 2rem;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.legend-item .spot {
-    width: 20px;
-    height: 20px;
-    border: 1px solid #ccc;
-    cursor: default;
+/* ==========================================================================
+   Responsive Design (สำหรับการแสดงผลบนมือถือ)
+   ========================================================================== */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+        align-items: flex-start;
+    }
+    .container, .login-container {
+        padding: 1.5rem;
+    }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.2rem; }
+    .header-controls {
+        top: 1rem;
+        right: 1rem;
+        gap: 0.5rem;
+    }
+    .header-controls .username { display: none; }
+    .logout-button {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+    .info-section {
+        grid-template-columns: 1fr;
+    }
+    .info-item:nth-child(2) {
+        text-align: left;
+    }
 }
