@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 24, 2025 at 02:07 PM
+-- Generation Time: Sep 24, 2025 at 08:49 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -45,28 +45,53 @@ INSERT INTO `parking_spots` (`id`, `spot_name`, `status`, `booked_by_user`, `zon
 (1, 'A01', 'available', 'Filmza00789', 1, 50.00, 'car'),
 (2, 'A02', 'available', 'Filmza00789', 1, 50.00, 'car'),
 (3, 'A03', 'available', 'Filmza00789', 1, 50.00, 'car'),
-(4, 'A04', 'occupied', 'Filmza00789', 1, 50.00, 'car'),
+(4, 'A04', 'occupied', NULL, 1, 50.00, 'car'),
 (5, 'A05', 'available', 'Filmza00789', 1, 50.00, 'car'),
-(6, 'A06', 'available', NULL, 1, 50.00, 'car'),
-(7, 'A07', 'available', NULL, 1, 50.00, 'car'),
+(6, 'A06', 'occupied', NULL, 1, 50.00, 'car'),
+(7, 'A07', 'occupied', NULL, 1, 50.00, 'car'),
 (8, 'A08', 'occupied', NULL, 1, 50.00, 'car'),
-(9, 'A09', 'occupied', 'Filmza00789', 1, 50.00, 'car'),
-(10, 'A10', 'occupied', NULL, 1, 50.00, 'car'),
+(9, 'A09', 'occupied', NULL, 1, 50.00, 'car'),
+(10, 'A10', 'available', NULL, 1, 50.00, 'car'),
 (11, 'A11', 'available', NULL, 1, 50.00, 'car'),
 (12, 'A12', 'occupied', NULL, 1, 50.00, 'car'),
-(13, 'A13', 'occupied', 'Filmza00789', 1, 50.00, 'car'),
+(13, 'A13', 'occupied', 'FF', 1, 50.00, 'car'),
 (14, 'A14', 'available', 'Filmza00789', 1, 50.00, 'car'),
 (15, 'A15', 'available', NULL, 1, 50.00, 'car'),
 (16, 'A16', 'available', NULL, 1, 50.00, 'car'),
-(17, 'A17', 'available', NULL, 1, 50.00, 'car'),
+(17, 'A17', 'occupied', NULL, 1, 50.00, 'car'),
 (18, 'A18', 'occupied', NULL, 1, 50.00, 'car'),
 (19, 'A19', 'available', NULL, 1, 50.00, 'car'),
-(20, 'A20', 'available', NULL, 1, 50.00, 'car'),
-(21, 'A21', 'available', 'Filmza00789', 1, 50.00, 'car'),
-(22, 'A22', 'occupied', NULL, 1, 50.00, 'car'),
+(20, 'A20', 'occupied', 'Filmza00789', 1, 50.00, 'car'),
+(21, 'A21', 'occupied', 'FF', 1, 50.00, 'car'),
+(22, 'A22', 'available', NULL, 1, 50.00, 'car'),
 (23, 'A23', 'available', 'Filmza00789', 1, 50.00, 'car'),
-(24, 'A24', 'occupied', NULL, 1, 50.00, 'car'),
-(25, 'A25', 'occupied', NULL, 1, 50.00, 'car');
+(24, 'A24', 'available', NULL, 1, 50.00, 'car'),
+(25, 'A25', 'occupied', NULL, 1, 50.00, 'car'),
+(26, 'B01', 'available', NULL, 2, 50.00, 'car'),
+(27, 'B02', 'occupied', NULL, 2, 50.00, 'car'),
+(28, 'B03', 'available', NULL, 2, 50.00, 'car'),
+(29, 'B04', 'occupied', 'FF', 2, 50.00, 'car'),
+(30, 'B05', 'occupied', NULL, 2, 50.00, 'car'),
+(31, 'B06', 'available', NULL, 2, 50.00, 'car'),
+(32, 'B07', 'available', NULL, 2, 50.00, 'car'),
+(33, 'B08', 'occupied', NULL, 2, 50.00, 'car'),
+(34, 'B09', 'available', NULL, 2, 50.00, 'car'),
+(35, 'B10', 'available', NULL, 2, 50.00, 'car'),
+(36, 'B11', 'occupied', NULL, 2, 50.00, 'car'),
+(37, 'B12', 'available', NULL, 2, 50.00, 'car'),
+(38, 'B13', 'available', NULL, 2, 50.00, 'car'),
+(39, 'B14', 'occupied', NULL, 2, 50.00, 'car'),
+(40, 'B15', 'available', NULL, 2, 50.00, 'car'),
+(41, 'B16', 'available', NULL, 2, 50.00, 'car'),
+(42, 'B17', 'occupied', NULL, 2, 50.00, 'car'),
+(43, 'B18', 'available', NULL, 2, 50.00, 'car'),
+(44, 'B19', 'available', NULL, 2, 50.00, 'car'),
+(45, 'B20', 'occupied', NULL, 2, 50.00, 'car'),
+(46, 'B21', 'occupied', 'FF', 2, 50.00, 'car'),
+(47, 'B22', 'occupied', 'FF', 2, 50.00, 'car'),
+(48, 'B23', 'occupied', NULL, 2, 50.00, 'car'),
+(49, 'B24', 'available', NULL, 2, 50.00, 'car'),
+(50, 'B25', 'available', NULL, 2, 50.00, 'car');
 
 -- --------------------------------------------------------
 
@@ -162,7 +187,7 @@ ALTER TABLE `zones`
 -- AUTO_INCREMENT for table `parking_spots`
 --
 ALTER TABLE `parking_spots`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `password_resets`
@@ -180,7 +205,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `zones`
 --
 ALTER TABLE `zones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables

@@ -27,6 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_booking'])) {
     $username = $_SESSION['username'] ?? 'guest';
     $payment_method = $_POST['payment_method'];
     $is_booking_success = false;
+    $zone_name_from_post = $_POST['selected_zone_name'];
 
     // --- Check payment method ---
     if ($payment_method === 'qr_code') {
@@ -74,7 +75,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_booking'])) {
             'cost' => $total_cost,
             'username' => $username,
             'transaction_date' => date('Y-m-d H:i:s'),
-            'payment_method' => $payment_method
+            'payment_method' => $payment_method,
+            'zone_name' => $zone_name_from_post // Store zone name in session
         ];
         header('Location: receipt.php');
         exit();
@@ -114,6 +116,7 @@ if (isset($_POST['selected_spot']) && !empty($_POST['selected_spot'])) {
     $start_time = $_POST['start_time'];
     $end_time = $_POST['end_time'];
     $total_cost = calculate_cost($start_time, $end_time);
+    $selected_zone_name = htmlspecialchars($_POST['selected_zone_name']);
 } else {
     header('Location: index.php');
     exit();
@@ -333,6 +336,7 @@ if (isset($_POST['selected_spot']) && !empty($_POST['selected_spot'])) {
         <div class="info-card">
             <h2><i class="fas fa-info-circle icon"></i> รายละเอียดการจอง</h2>
             <p>ที่จอด: <strong><?php echo $selected_spot; ?></strong></p>
+            <p>สถานที่: <strong><?php echo htmlspecialchars($selected_zone_name); ?></strong></p>
             <p>เวลาเข้า: <?php echo date('d/m/Y H:i', strtotime($start_time)); ?> น.</p>
             <p>เวลาออก: <?php echo date('d/m/Y H:i', strtotime($end_time)); ?> น.</p>
             <p class="cost">ค่าบริการ: <strong><?php echo number_format($total_cost, 2); ?> บาท</strong></p>
@@ -352,6 +356,7 @@ if (isset($_POST['selected_spot']) && !empty($_POST['selected_spot'])) {
                 <input type="hidden" name="booked_spot" value="<?php echo $selected_spot; ?>">
                 <input type="hidden" name="start_time" value="<?php echo htmlspecialchars($start_time); ?>">
                 <input type="hidden" name="end_time" value="<?php echo htmlspecialchars($end_time); ?>">
+                <input type="hidden" name="selected_zone_name" value="<?php echo htmlspecialchars($selected_zone_name); ?>">
                 
                 <label for="payment_slip" class="slip-upload-label">แนบสลิปการโอนเงิน</label>
                 <input type="file" id="payment_slip" name="payment_slip" accept="image/*" required>
@@ -365,6 +370,7 @@ if (isset($_POST['selected_spot']) && !empty($_POST['selected_spot'])) {
                 <input type="hidden" name="booked_spot" value="<?php echo $selected_spot; ?>">
                 <input type="hidden" name="start_time" value="<?php echo htmlspecialchars($start_time); ?>">
                 <input type="hidden" name="end_time" value="<?php echo htmlspecialchars($end_time); ?>">
+                <input type="hidden" name="selected_zone_name" value="<?php echo htmlspecialchars($selected_zone_name); ?>">
 
                 <div class="credit-card-form">
                     <div class="form-group">

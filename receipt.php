@@ -235,7 +235,11 @@ date_default_timezone_set('Asia/Bangkok');
             </thead>
             <tbody>
                 <tr>
-                    <td>สถานที่จอด</td>
+                    <td>สถานที่</td>
+                    <td><?php echo htmlspecialchars($receipt['zone_name']); ?></td>
+                </tr>
+                <tr>
+                    <td>ที่จอด</td>
                     <td><?php echo htmlspecialchars($receipt['spot']); ?></td>
                 </tr>
                 <tr>

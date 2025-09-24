@@ -299,6 +299,7 @@ $conn->close();
             <input type="hidden" name="selected_spot" id="selected-spot-input">
             <input type="hidden" name="start_time" value="<?php echo htmlspecialchars($start_time); ?>">
             <input type="hidden" name="end_time" value="<?php echo htmlspecialchars($end_time); ?>">
+            <input type="hidden" name="selected_zone_name" value="<?php echo htmlspecialchars($selected_zone_name); ?>">
             <button type="submit" id="book-button" disabled>ยืนยันการเลือก</button>
         </form>
 
