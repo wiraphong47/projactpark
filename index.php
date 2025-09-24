@@ -2,28 +2,28 @@
 session_start();
 require_once 'config.php';
 
-// --- กำหนดโซนที่ถูกเลือก (ถ้าไม่มีการส่งค่ามา ให้เป็น 'central' เป็นค่าเริ่มต้น) ---
-$selected_zone = $_GET['zone'] ?? 'central';
+// --- 1. สุ่มสถานะที่จอดรถในฐานข้อมูลใหม่ทุกครั้งที่รีเฟรช ---
+// หมายเหตุ: บรรทัดนี้จะเปลี่ยนข้อมูลใน Database จริงๆ ทุกครั้งที่เข้ามาหน้านี้
+$conn->query("UPDATE parking_spots SET status = IF(RAND() > 0.5, 'occupied', 'available') WHERE spot_name LIKE 'A%'");
 
-// --- เปลี่ยนแปลงคำสั่ง SQL ให้ดึงข้อมูลตามโซน ---
-$spot_prefix = 'A%'; // ค่าเริ่มต้นสำหรับ Central
-if ($selected_zone === 'bigc') {
-    $spot_prefix = 'B%'; // สมมติว่า Big C ใช้ตัวอักษร B
-}
 
+// --- 2. ดึงข้อมูลสถานะล่าสุดและนับจำนวน ---
 $parking_statuses = [];
-// --- แก้ไข SQL ให้ใช้ตัวแปร $spot_prefix ---
-$stmt = $conn->prepare("SELECT spot_name, status FROM parking_spots WHERE spot_name LIKE ? ORDER BY id");
-$stmt->bind_param("s", $spot_prefix);
-$stmt->execute();
-$result = $stmt->get_result();
+$available_count = 0;
+$occupied_count = 0;
 
+$result = $conn->query("SELECT spot_name, status FROM parking_spots WHERE spot_name LIKE 'A%' ORDER BY id");
 if ($result && $result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
         $parking_statuses[$row['spot_name']] = $row['status'];
+        // นับจำนวนสถานะ
+        if ($row['status'] == 'available') {
+            $available_count++;
+        } else {
+            $occupied_count++;
+        }
     }
 }
-$stmt->close();
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -35,142 +35,52 @@ $conn->close();
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Kanit', sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            margin: 0;
-            padding-top: 50px;
+            font-family: 'Kanit', sans-serif; background-color: #f4f4f9; display: flex;
+            justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding-top: 50px;
         }
         .container {
-            background-color: white;
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            width: 90%;
-            max-width: 800px;
+            background-color: white; padding: 30px 40px; border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 90%; max-width: 800px;
         }
-        h1, h2 {
-            color: #333;
-            text-align: left;
-            margin-bottom: 20px;
-        }
+        h1 { color: #333; text-align: left; margin-bottom: 20px; }
 
-        /* === สไตล์สำหรับโซน === */
-        .zone-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 25px;
+        /* === สไตล์สำหรับสรุปสถานะ === */
+        .status-summary {
+            display: flex; gap: 20px; padding: 15px; background-color: #f8f9fa;
+            border-radius: 8px; margin-bottom: 25px; border: 1px solid #e9ecef;
         }
-        .zone-button {
-            padding: 10px 20px;
-            font-family: 'Kanit', sans-serif;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            background-color: #f8f9fa;
-            color: #555;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .zone-button:hover {
-            background-color: #e2e6ea;
-            border-color: #ccc;
-        }
-        .zone-button.active {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-            font-weight: bold;
-        }
-        .zone-button.disabled {
-            background-color: #e9ecef;
-            color: #adb5bd;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
+        .summary-item { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+        .summary-item .color-box { width: 20px; height: 20px; border-radius: 4px; }
+        .summary-item .available-box { background-color: #28a745; }
+        .summary-item .occupied-box { background-color: #dc3545; }
+        .summary-item span { font-weight: bold; font-size: 18px; }
 
-        /* === Parking Grid & Spots === */
         .parking-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr); 
-            gap: 15px;
-            margin: 25px 0;
+            display: grid; grid-template-columns: repeat(5, 1fr); 
+            gap: 15px; margin: 25px 0;
         }
         .spot {
-            height: 60px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: 500;
-            font-size: 16px;
-            color: #444;
+            height: 60px; border-radius: 10px; display: flex; justify-content: center;
+            align-items: center; font-weight: 500; font-size: 16px; color: white;
             transition: all 0.2s ease;
         }
-        .spot.available {
-            background-color: #e9ecef;
-            cursor: pointer;
-        }
-        .spot.occupied {
-            background-color: #e57373;
-            color: white;
-            cursor: not-allowed;
-        }
-        .spot.selected {
-            background-color: #81c784;
-            color: white;
-            transform: scale(1.05);
-        }
-
-        /* === Header Controls === */
-        .header-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .header-controls .username {
-            font-weight: bold;
-        }
-        .logout-button {
-            background-color: #e57373;
-            color: white;
-            padding: 8px 15px;
-            text-decoration: none;
-            border-radius: 20px;
-            font-size: 14px;
-        }
+        .spot.available { background-color: #28a745; cursor: pointer; }
+        .spot.occupied { background-color: #dc3545; cursor: not-allowed; }
+        .spot.selected { background-color: #ffc107; color: #333; transform: scale(1.1); border: 2px solid #e0a800;}
         
-        /* === สไตล์สำหรับปุ่มจอง === */
+        .header-controls { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 15px; }
+        .header-controls .username { font-weight: bold; }
+        .logout-button {
+            background-color: #e57373; color: white; padding: 8px 15px;
+            text-decoration: none; border-radius: 20px; font-size: 14px;
+        }
         #book-button {
-            display: none;
-            width: 100%;
-            max-width: 300px;
-            padding: 15px;
-            margin: 25px auto 0 auto;
-            font-family: 'Kanit', sans-serif;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            background-color: #007bff;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            text-align: center;
+            display: none; width: 100%; max-width: 300px; padding: 15px; margin: 25px auto 0 auto;
+            font-family: 'Kanit', sans-serif; font-size: 18px; font-weight: bold; color: white;
+            background-color: #007bff; border: none; border-radius: 30px; cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease; text-align: center;
         }
-        #book-button:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-        }
+        #book-button:hover { background-color: #0056b3; transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -182,29 +92,26 @@ $conn->close();
     <?php endif; ?>
 
     <div class="container">
-        <h1>เลือกโซนที่จอดรถ</h1>
-        <div class="zone-selector">
-            <a href="index.php?zone=central" class="zone-button <?php if($selected_zone == 'central') echo 'active'; ?>">
-                เซ็นทรัล
-            </a>
-            <a href="#" class="zone-button disabled" onclick="return false;">
-                บิ๊กซี (ยังไม่เปิดให้บริการ)
-            </a>
-        </div>
+        <h1>ผังที่จอดรถ</h1>
         
-        <h2>ผังที่จอดรถ: <?php echo ($selected_zone == 'central') ? 'โซน A (เซ็นทรัล)' : 'โซน B (บิ๊กซี)'; ?></h2>
+        <div class="status-summary">
+            <div class="summary-item">
+                <div class="color-box available-box"></div>
+                ว่าง: <span><?php echo $available_count; ?></span> ช่อง
+            </div>
+            <div class="summary-item">
+                <div class="color-box occupied-box"></div>
+                ไม่ว่าง: <span><?php echo $occupied_count; ?></span> ช่อง
+            </div>
+        </div>
         
         <form action="payment.php" method="post" id="booking-form">
             <div class="parking-grid">
-                <?php if (!empty($parking_statuses)): ?>
-                    <?php foreach ($parking_statuses as $spot_id => $status): ?>
-                        <div class="spot <?php echo $status; ?>" data-spot-id="<?php echo $spot_id; ?>">
-                            <?php echo $spot_id; ?>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <p>ไม่พบที่จอดรถในโซนนี้</p>
-                <?php endif; ?>
+                <?php foreach ($parking_statuses as $spot_id => $status): ?>
+                    <div class="spot <?php echo $status; ?>" data-spot-id="<?php echo $spot_id; ?>">
+                        <?php echo $spot_id; ?>
+                    </div>
+                <?php endforeach; ?>
             </div>
             <input type="hidden" name="selected_spot" id="selected-spot-input">
             <button type="submit" id="book-button">ยืนยันการเลือก</button>
