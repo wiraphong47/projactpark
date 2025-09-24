@@ -28,12 +28,15 @@ if (isset($_SESSION['error_message'])) {
                 <label for="password">รหัส</label>
                 <input type="password" id="password" name="password" required>
             </div>
+            
             <?php if (!empty($error_message)) { echo '<p class="error-message">' . $error_message . '</p>'; } ?>
             <button type="submit">เข้าสู่ระบบ</button>
         </form>
         <div class="extra-links">
             <a href="forgot_password.php">ลืมรหัสผ่าน?</a>
             <a href="register.php">สมัครใช้งาน</a>
+            <a href="admin_login.php">สำหรับผู้ดูแลระบบ</a>
+            
         </div>
     </div>
 </body>
