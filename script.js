@@ -1,4 +1,3 @@
-// script.js
 document.addEventListener('DOMContentLoaded', function() {
 
     const parkingGrid = document.querySelector('.parking-grid');
@@ -10,17 +9,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // ตรวจจับการคลิกที่ช่องจอด
     parkingGrid.addEventListener('click', function(event) {
         
-        const clickedSpot = event.target;
+        // --- ส่วนที่ปรับปรุง ---
+        // ใช้ .closest('.spot') เพื่อให้แน่ใจว่าเราได้ Element ของช่องจอดจริงๆ
+        const clickedSpot = event.target.closest('.spot');
 
-        // เช็คว่าที่คลิกคือช่องจอดที่ "ว่าง" หรือไม่
-        if (clickedSpot.classList.contains('spot') && clickedSpot.classList.contains('available')) {
+        // ถ้าไม่ได้คลิกที่ช่องจอด ให้ออกจากฟังก์ชันไปเลย
+        if (!clickedSpot) {
+            return; 
+        }
+
+        // เช็คว่าช่องที่คลิก "ว่าง" หรือไม่
+        if (clickedSpot.classList.contains('available')) {
             
-            // ถ้ามีช่องที่ถูกเลือกอยู่แล้ว (สีเขียว) ให้เอาสีเขียวออกก่อน
+            // ถ้ามีช่องที่ถูกเลือกอยู่แล้ว ให้เอา class 'selected' ออกก่อน
             if (currentSelectedSpot) {
                 currentSelectedSpot.classList.remove('selected');
             }
 
-            // เพิ่มสีเขียวให้กับช่องที่เพิ่งคลิก
+            // เพิ่ม class 'selected' ให้กับช่องที่เพิ่งคลิก
             clickedSpot.classList.add('selected');
             currentSelectedSpot = clickedSpot;
 
@@ -28,8 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
             bookButton.style.display = 'block';
 
             // นำรหัสของช่องจอดไปใส่ใน input ที่ซ่อนไว้
-            const spotId = clickedSpot.dataset.spotId;
-            selectedSpotInput.value = spotId;
+            selectedSpotInput.value = clickedSpot.dataset.spotId;
 
         } else if (clickedSpot.classList.contains('occupied')) {
             // ถ้าคลิกช่องที่ไม่ว่าง (สีแดง)

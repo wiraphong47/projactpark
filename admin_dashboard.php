@@ -149,7 +149,9 @@ $conn->close();
             <a href="logout.php">ออกจากระบบ</a>
         </div>
         <p class="welcome-message">ยินดีต้อนรับ, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong></p>
-        
+        <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
+            <a href="manage_zones.php" style="padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">จัดการโซน</a>
+        </div>
         <div class="parking-grid">
             <?php foreach ($spots as $spot): ?>
                 <div class="spot <?php echo $spot['status']; ?>">
