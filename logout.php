@@ -1,5 +1,5 @@
 <?php
-// เริ่มต้น session เสมอ
+// เริ่มต้น session เสมอเมื่อมีการจัดการ session
 session_start();
 
 // ล้างข้อมูลใน session ทั้งหมด
