@@ -2,8 +2,8 @@
 session_start();
 require_once 'config.php';
 
-// ตรวจสอบว่าเป็น Admin หรือไม่
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+// ตรวจสอบว่าเป็น Admin หรือ Employee หรือไม่
+if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'employee')) {
     header('Location: admin_login.php?error=กรุณาเข้าสู่ระบบสำหรับผู้ดูแล');
     exit();
 }
@@ -12,11 +12,6 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 $zones = [];
 $zone_result = $conn->query("SELECT id, name FROM zones ORDER BY id");
 if ($zone_result) { while($row = $zone_result->fetch_assoc()) { $zones[] = $row; } }
-
-// ดึงข้อมูลที่จอดรถทั้งหมด (ไม่ต้องดึงทีเดียว)
-// $spots = [];
-// $result = $conn->query("SELECT spot_name, status, booked_by_user FROM parking_spots ORDER BY id");
-// if ($result) { while($row = $result->fetch_assoc()) { $spots[] = $row; } }
 
 // ดึงข้อมูลที่จอดรถตามโซน
 $spots_by_zone = [];
@@ -37,6 +32,49 @@ if (!empty($zones)) {
     }
 }
 
+// ดึงข้อมูลพนักงานและประวัติการเข้าสู่ระบบ (สำหรับ Admin เท่านั้น)
+$employees = [];
+if ($_SESSION['role'] === 'admin') {
+    $sql = "SELECT u.full_name, u.employee_id, u.phone_number, u.address,
+            lh.login_time, lh.logout_time
+            FROM users u
+            LEFT JOIN (
+                SELECT user_id, MAX(login_time) as login_time, MAX(logout_time) as logout_time
+                FROM login_history
+                GROUP BY user_id
+            ) lh ON u.id = lh.user_id
+            WHERE u.role = 'employee' OR u.role = 'admin'
+            ORDER BY u.full_name ASC";
+    $result_employees = $conn->query($sql);
+    if ($result_employees) {
+        while($row = $result_employees->fetch_assoc()) {
+            $employees[] = $row;
+        }
+    }
+}
+
+// ดึงข้อมูลพนักงานที่ล็อกอินอยู่ (สำหรับพนักงาน)
+$current_employee_info = null;
+if (isset($_SESSION['username'])) {
+    $username_logged_in = $_SESSION['username'];
+    $sql_employee = "SELECT u.full_name, u.employee_id, u.phone_number, u.address,
+                     lh.login_time, lh.logout_time
+                     FROM users u
+                     LEFT JOIN (
+                         SELECT user_id, MAX(login_time) as login_time, MAX(logout_time) as logout_time
+                         FROM login_history
+                         GROUP BY user_id
+                     ) lh ON u.id = lh.user_id
+                     WHERE u.username = ?";
+    $stmt_employee = $conn->prepare($sql_employee);
+    $stmt_employee->bind_param("s", $username_logged_in);
+    $stmt_employee->execute();
+    $result_employee = $stmt_employee->get_result();
+    if ($result_employee->num_rows > 0) {
+        $current_employee_info = $result_employee->fetch_assoc();
+    }
+    $stmt_employee->close();
+}
 
 $conn->close();
 ?>
@@ -207,6 +245,34 @@ body {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     }
 }
+.employee-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.employee-table th, .employee-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.employee-table th {
+    background-color: #f2f2f2;
+}
+
+.employee-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+.user-info-box {
+    background-color: #f0f8ff; /* Light blue background */
+    border: 1px solid #cce5ff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    line-height: 1.8;
+}
     </style>
 </head>
 <body>
@@ -216,10 +282,33 @@ body {
             <a href="logout.php">ออกจากระบบ</a>
         </div>
         <p class="welcome-message">ยินดีต้อนรับ, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong></p>
+        
+        <?php if ($_SESSION['role'] === 'admin'): ?>
         <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
             <a href="manage_zones.php" style="padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">จัดการโซน</a>
+            <a href="employee_login_history.php" style="padding: 10px 15px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">ดูประวัติการเข้าสู่ระบบ</a>
         </div>
+        
+        <div id="employee-data-container">
+            </div>
 
+        <?php elseif ($_SESSION['role'] === 'employee'): ?>
+        <h2 style="margin-top: 40px;">ข้อมูลของคุณ</h2>
+        <div class="user-info-box">
+            <?php if ($current_employee_info): ?>
+                <p><strong>ชื่อ-สกุล:</strong> <?php echo htmlspecialchars($current_employee_info['full_name']); ?></p>
+                <p><strong>รหัสพนักงาน:</strong> <?php echo htmlspecialchars($current_employee_info['employee_id'] ?? '-'); ?></p>
+                <p><strong>เบอร์โทร:</strong> <?php echo htmlspecialchars($current_employee_info['phone_number']); ?></p>
+                <p><strong>ที่อยู่:</strong> <?php echo htmlspecialchars($current_employee_info['address']); ?></p>
+                <p><strong>เวลาเข้างานล่าสุด:</strong> <?php echo htmlspecialchars($current_employee_info['login_time'] ? date('d-m-Y H:i:s', strtotime($current_employee_info['login_time'])) : '-'); ?></p>
+                <p><strong>เวลาออกงานล่าสุด:</strong> <?php echo htmlspecialchars($current_employee_info['logout_time'] ? date('d-m-Y H:i:s', strtotime($current_employee_info['logout_time'])) : '-'); ?></p>
+            <?php else: ?>
+                <p>ไม่พบข้อมูลของคุณ</p>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <h2 style="margin-top: 40px;">สถานะที่จอดรถ</h2>
         <?php if (!empty($zones)): ?>
             <?php foreach ($zones as $zone): ?>
                 <div class="zone-section" style="margin-bottom: 40px;">
@@ -231,10 +320,12 @@ body {
                                     <span class="spot-name"><?php echo $spot['spot_name']; ?></span>
                                     <?php if ($spot['status'] === 'occupied'): ?>
                                         <span class="booked-by">จองโดย: <?php echo htmlspecialchars($spot['booked_by_user']); ?></span>
+                                        <?php if ($_SESSION['role'] === 'admin'): ?>
                                         <form action="admin_reset_spot.php" method="POST" style="margin:0;">
                                             <input type="hidden" name="spot_name" value="<?php echo $spot['spot_name']; ?>">
                                             <button type="submit" class="reset-button">รีเซ็ต</button>
                                         </form>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
@@ -248,5 +339,26 @@ body {
             <p style="text-align: center;">ไม่พบโซนที่จอดรถ</p>
         <?php endif; ?>
     </div>
+
+    <script>
+    function fetchEmployeeData() {
+        fetch('get_employee_data.php')
+            .then(response => response.text())
+            .then(html => {
+                const container = document.getElementById('employee-data-container');
+                if (container) {
+                    container.innerHTML = html;
+                }
+            })
+            .catch(error => console.error('Error fetching employee data:', error));
+    }
+
+    // โหลดข้อมูลครั้งแรกสำหรับ Admin
+    if ('<?php echo $_SESSION['role']; ?>' === 'admin') {
+        fetchEmployeeData();
+        // ตั้งเวลาโหลดข้อมูลใหม่ทุก 5 นาที (300000 มิลลิวินาที)
+        setInterval(fetchEmployeeData, 300000);
+    }
+    </script>
 </body>
 </html>

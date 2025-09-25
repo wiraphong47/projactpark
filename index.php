@@ -14,6 +14,20 @@ if ($zone_result) {
 // --- กำหนดโซนที่ถูกเลือก (ถ้าไม่มี ให้เลือกโซนแรกเป็นค่าเริ่มต้น) ---
 $selected_zone_id = $_GET['zone'] ?? ($zones[0]['id'] ?? 0);
 
+// --- เพิ่มส่วนนี้: ดึงข้อมูลสมาชิกจากฐานข้อมูล หากมีการล็อกอินอยู่ ---
+$user_info = null;
+if (isset($_SESSION['username'])) {
+    $username_logged_in = $_SESSION['username'];
+    $stmt = $conn->prepare("SELECT username, full_name, phone_number, address, member_id FROM users WHERE username = ?");
+    $stmt->bind_param("s", $username_logged_in);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $user_info = $result->fetch_assoc();
+    }
+    $stmt->close();
+}
+
 // ปิดการเชื่อมต่อชั่วคราว
 $conn->close();
 ?>
@@ -198,12 +212,61 @@ $conn->close();
                 margin-bottom: 0;
             }
         }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-body p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .modal-body strong {
+            color: var(--primary-color);
+        }
     </style>
 </head>
 <body>
     <?php if (isset($_SESSION['username'])): ?>
         <div class="header-controls">
             <span class="username">สวัสดี, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
+            <button id="show-info-button" style="padding: 8px 15px; border: none; border-radius: 20px; background-color: #28a745; color: white; font-weight: bold; cursor: pointer;">แสดงข้อมูลสมาชิก</button>
             <a href="logout.php" class="logout-button">ออกจากระบบ</a>
         </div>
     <?php endif; ?>
@@ -246,5 +309,55 @@ $conn->close();
             </div>
         </form>
     </div>
+
+    <div id="member-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 style="text-align: center; color: var(--primary-color);">ข้อมูลสมาชิก</h2>
+            <div class="modal-body">
+                <?php if ($user_info): ?>
+                    <p><strong>รหัสสมาชิก:</strong> <?php echo htmlspecialchars($user_info['member_id']); ?></p>
+                    <p><strong>ชื่อ-สกุล:</strong> <?php echo htmlspecialchars($user_info['full_name']); ?></p>
+                    <p><strong>เบอร์โทร:</strong> <?php echo htmlspecialchars($user_info['phone_number']); ?></p>
+                    <p><strong>ที่อยู่:</strong> <?php echo htmlspecialchars($user_info['address']); ?></p>
+                    <p><strong>ชื่อผู้ใช้:</strong> <?php echo htmlspecialchars($user_info['username']); ?></p>
+                <?php else: ?>
+                    <p>ไม่พบข้อมูลสมาชิก</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the modal
+        const modal = document.getElementById("member-modal");
+        
+        // Get the button that opens the modal
+        const btn = document.getElementById("show-info-button");
+        
+        // Get the <span> element that closes the modal
+        const span = document.getElementsByClassName("close-button")[0];
+        
+        if (btn) {
+            btn.onclick = function() {
+                modal.style.display = "block";
+            }
+        }
+        
+        if (span) {
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+        }
+        
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    });
+    </script>
 </body>
 </html>
